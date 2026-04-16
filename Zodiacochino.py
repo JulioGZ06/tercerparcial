@@ -1,16 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from datetime import datetime
-import os
 
-
+# Diccionario de imágenes
 signos_chinos = {
     "Rata": "rata.png",
     "Buey": "buey.png",
     "Tigre": "tigre.png",
     "Conejo": "conejo.png",
-    "Dragón": "dragon.png",
+    "Dragon": "dragon.png",
     "Serpiente": "serpiente.png",
     "Caballo": "caballo.png",
     "Cabra": "cabra.png",
@@ -20,126 +18,130 @@ signos_chinos = {
     "Cerdo": "cerdo.png"
 }
 
-def imprimir():
-    try:
-        nombre = entry_nombre.get()
-        ap = entry_ap.get()
-        am = entry_am.get()
+ventana = tk.Tk()
+ventana.title("ZODIACO CHINO")
+ventana.geometry("500x400")
 
-        if nombre == "" or ap == "" or am == "":
-            messagebox.showerror("Error", "Llena todos los campos")
+
+imagenes = {}
+for signo, archivo in signos_chinos.items():
+    try:
+        img = Image.open(archivo)
+        img = img.resize((120, 120))
+        imagenes[signo] = ImageTk.PhotoImage(img)
+    except Exception as e:
+        print("Error cargando:", archivo, e)
+        imagenes[signo] = None
+
+
+def calcular():
+    try:
+        nombre = entrada_nombre.get()
+        paterno = entrada_paterno.get()
+        materno = entrada_materno.get()
+        ano = int(entrada_anio.get())
+        mes = int(entrada_mes.get())
+        dia = int(entrada_dia.get())
+
+        if nombre == "" or paterno == "" or materno == "":
+            messagebox.showerror("Error", "Completa todos los datos")
             return
 
         if sexo.get() == "":
             messagebox.showerror("Error", "Selecciona un sexo")
             return
+        
+        signos = ["Mono", "Gallo", "Perro", "Cerdo", "Rata", "Buey",
+                  "Tigre", "Conejo", "Dragon", "Serpiente", "Caballo", "Cabra"]
 
-        dia = int(entry_dia.get())
-        mes = int(entry_mes.get())
-        anio = int(entry_anio.get())
+        signo = signos[ano % 12]
 
-        try:
-            fecha_nacimiento = datetime(anio, mes, dia)
-        except:
-            messagebox.showerror("Error", "Fecha inválida")
-            return
+        # Fecha actual
+        dia_actual = 27
+        mes_actual = 3
+        anio_actual = 2026
 
-        hoy = datetime.now()
-        edad = hoy.year - fecha_nacimiento.year
-        if (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day):
+        edad = anio_actual - ano
+
+        if (mes_actual, dia_actual) < (mes, dia):
             edad -= 1
 
-        if mes == 1 or (mes == 2 and dia < 4):
-            anio -= 1
+        genero = "Masculino" if sexo.get() == "M" else "Femenino"
 
-        animales = list(signos_chinos.keys())
-        indice = (anio - 1900) % 12
-        signo = animales[indice]
+        label_resultado.config(
+            text=f"Hola {nombre} {paterno} {materno}\n"
+                 f"Sexo: {genero}\n"
+                 f"Tienes {edad} años\n"
+                 f"Tu signo zodiacal es:\n{signo}"
+        )
 
-        gen = "Masculino" if sexo.get() == "M" else "Femenino"
+        label_imagen.config(image=imagenes[signo])
+        label_imagen.image = imagenes[signo]
 
-        resultado.set(f"Hola {nombre} {ap} {am}\n"
-                      f"Sexo: {gen}\n"
-                      f"Tienes {edad} años\n"
-                      f"Tu signo chino es: {signo}")
-
-        carpeta = "imagenes/"
-        archivo_img = carpeta + signos_chinos[signo]
-
-
-        img = Image.open(archivo_img)
-        img = img.resize((120, 120))
-        img_tk = ImageTk.PhotoImage(img)
-
-        label_img.config(image=img_tk)
-        label_img.image = img_tk
-
-    except ValueError:
-        messagebox.showerror("Error", "Ingresa números válidos en fecha")
-    except Exception as e:
-        print("Error:", e)
-        messagebox.showerror("Error", "Ocurrió un error")
+    except:
+        messagebox.showerror("Error", "Datos inválidos")
 
 
 def limpiar():
-    entry_nombre.delete(0, tk.END)
-    entry_ap.delete(0, tk.END)
-    entry_am.delete(0, tk.END)
-    entry_dia.delete(0, tk.END)
-    entry_mes.delete(0, tk.END)
-    entry_anio.delete(0, tk.END)
+    entrada_nombre.delete(0, tk.END)
+    entrada_paterno.delete(0, tk.END)
+    entrada_materno.delete(0, tk.END)
+    entrada_dia.delete(0, tk.END)
+    entrada_mes.delete(0, tk.END)
+    entrada_anio.delete(0, tk.END)
 
-    resultado.set("")
-    label_img.config(image=None)
-    label_img.image = None
+    label_resultado.config(text="")
+    label_imagen.config(image=None)
+    label_imagen.image = None
     sexo.set("")
 
 
-ventana = tk.Tk()
-ventana.title("ZODIACO")
-ventana.geometry("500x400")
-
+# Frame izquierdo
 frame1 = tk.Frame(ventana)
 frame1.pack(side="left", padx=20, pady=20)
 
 tk.Label(frame1, text="Nombre").pack()
-entry_nombre = tk.Entry(frame1)
-entry_nombre.pack()
+entrada_nombre = tk.Entry(frame1)
+entrada_nombre.pack()
 
 tk.Label(frame1, text="Apellido Paterno").pack()
-entry_ap = tk.Entry(frame1)
-entry_ap.pack()
+entrada_paterno = tk.Entry(frame1)
+entrada_paterno.pack()
 
 tk.Label(frame1, text="Apellido Materno").pack()
-entry_am = tk.Entry(frame1)
-entry_am.pack()
+entrada_materno = tk.Entry(frame1)
+entrada_materno.pack()
 
 tk.Label(frame1, text="Día").pack()
-entry_dia = tk.Entry(frame1)
-entry_dia.pack()
+entrada_dia = tk.Entry(frame1)
+entrada_dia.pack()
 
 tk.Label(frame1, text="Mes").pack()
-entry_mes = tk.Entry(frame1)
-entry_mes.pack()
+entrada_mes = tk.Entry(frame1)
+entrada_mes.pack()
 
 tk.Label(frame1, text="Año").pack()
-entry_anio = tk.Entry(frame1)
-entry_anio.pack()
+entrada_anio = tk.Entry(frame1)
+entrada_anio.pack()
 
+# Sexo
 sexo = tk.StringVar()
+
+tk.Label(frame1, text="Sexo").pack()
 tk.Radiobutton(frame1, text="Masculino", variable=sexo, value="M").pack()
 tk.Radiobutton(frame1, text="Femenino", variable=sexo, value="F").pack()
 
-tk.Button(frame1, text="Imprimir", command=imprimir).pack(pady=5)
+tk.Button(frame1, text="Calcular", command=calcular).pack(pady=5)
 tk.Button(frame1, text="Limpiar", command=limpiar).pack(pady=5)
 
+# Frame derecho
 frame2 = tk.Frame(ventana)
 frame2.pack(side="right", padx=20, pady=20)
 
-resultado = tk.StringVar()
-tk.Label(frame2, textvariable=resultado, justify="left").pack()
+label_resultado = tk.Label(frame2, text="", justify="left")
+label_resultado.pack()
 
-label_img = tk.Label(frame2)
-label_img.pack()
+label_imagen = tk.Label(frame2)
+label_imagen.pack()
 
 ventana.mainloop()

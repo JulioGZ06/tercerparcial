@@ -1,6 +1,21 @@
 import tkinter as tk
+import os
 
 diccionario = {}
+archivo = "diccionario.txt"
+
+# Cargar datos del archivo
+def cargar_diccionario():
+    if os.path.exists(archivo):
+        with open(archivo, "r", encoding="utf-8") as f:
+            for linea in f:
+                es, en = linea.strip().split(",")
+                diccionario[es] = en
+
+# Guardar una palabra en el archivo
+def guardar_palabra(es, en):
+    with open(archivo, "a", encoding="utf-8") as f:
+        f.write(es + "," + en + "\n")
 
 def agregar():
     es = entrada_es.get().lower()
@@ -10,7 +25,8 @@ def agregar():
         resultado.set("Completa ambos campos")
     else:
         diccionario[es] = en
-        resultado.set("Palabra agregada")
+        guardar_palabra(es, en)
+        resultado.set("Palabra agregada y guardada")
 
 def traducir():
     palabra = entrada_buscar.get().lower()
@@ -36,6 +52,7 @@ def limpiar():
     entrada_buscar.delete(0, tk.END)
     resultado.set("")
 
+# Ventana
 ventana = tk.Tk()
 ventana.title("Traductor ES - EN")
 ventana.geometry("400x400")
@@ -62,11 +79,13 @@ entrada_en = tk.Entry(ventana)
 entrada_en.pack()
 
 tk.Button(ventana, text="Agregar", command=agregar).pack(pady=5)
-
 tk.Button(ventana, text="Traducir", command=traducir).pack(pady=5)
 tk.Button(ventana, text="Limpiar", command=limpiar).pack()
 
 resultado = tk.StringVar()
 tk.Label(ventana, textvariable=resultado).pack(pady=10)
+
+# Cargar datos al iniciar
+cargar_diccionario()
 
 ventana.mainloop()

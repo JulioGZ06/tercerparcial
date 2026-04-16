@@ -71,11 +71,11 @@ tk.Label(root, text="Agregar nueva palabra").pack()
 
 entrada_esp = tk.Entry(root)
 entrada_esp.pack()
-entrada_esp.insert(0, "Español")
+
 
 entrada_ing = tk.Entry(root)
 entrada_ing.pack()
-entrada_ing.insert(0, "Inglés")
+
 
 tk.Button(root, text="Agregar", command=agregar).pack(pady=10)
 
