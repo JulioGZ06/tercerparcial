@@ -4,9 +4,6 @@ from tkinter import messagebox, simpledialog
 from PIL import Image, ImageTk
 import os
 
-ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("blue")
-
 precio = 5
 dinero = 0
 
@@ -183,7 +180,7 @@ def cambiar_precio():
 
     try:
         nuevo = float(simpledialog.askstring("Precio", "Nuevo precio"))
-        if nuevo < 0:
+        if nuevo < 0.5:
             raise ValueError
     except:
         messagebox.showerror("Error", "Precio inválido")
@@ -199,13 +196,8 @@ ventana.geometry("400x750")
 
 ventana.columnconfigure(0, weight=1)
 
-menu = tk.Menu(ventana)
-ventana.config(menu=menu)
-
-opciones = tk.Menu(menu, tearoff=0)
-menu.add_cascade(label="Opciones", menu=opciones)
-opciones.add_command(label="Surtir", command=surtir)
-opciones.add_command(label="Cambiar precio", command=cambiar_precio)
+ctk.CTkButton(ventana, text="Surtir", command=surtir).grid(row=14, column=0, pady=5)
+ctk.CTkButton(ventana, text="Cambiar precio", command=cambiar_precio).grid(row=15, column=0, pady=5)
 
 label_dinero = ctk.CTkLabel(ventana, text="Dinero: $0")
 label_dinero.grid(row=0, column=0, pady=10)

@@ -10,9 +10,15 @@ class App(ctk.CTk):
         super().__init__()
 
         self.title("Pizzeria")
-        self.geometry("850x500")
+        self.geometry("1100x600")
 
-        frame1 = ctk.CTkFrame(self)
+        contenedor = ctk.CTkFrame(self)
+        contenedor.pack(fill="both", expand=True)
+
+        frame_izq = ctk.CTkFrame(contenedor)
+        frame_izq.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+
+        frame1 = ctk.CTkFrame(frame_izq)
         frame1.pack(pady=5)
 
         ctk.CTkLabel(frame1, text="Nombre").grid(row=0, column=0)
@@ -31,7 +37,8 @@ class App(ctk.CTk):
         self.fecha = ctk.CTkEntry(frame1)
         self.fecha.grid(row=1, column=1)
 
-        frame2 = ctk.CTkFrame(self)
+        # ---------------- FRAME 2 ----------------
+        frame2 = ctk.CTkFrame(frame_izq)
         frame2.pack(pady=5)
 
         self.tamano = tk.StringVar(value="Chica")
@@ -57,7 +64,8 @@ class App(ctk.CTk):
 
         ctk.CTkButton(frame2, text="Agregar", command=self.agregar).grid(row=2, column=2)
 
-        frame3 = ctk.CTkFrame(self)
+        # ---------------- FRAME 3 ----------------
+        frame3 = ctk.CTkFrame(frame_izq)
         frame3.pack(pady=10)
 
         self.tabla = ttk.Treeview(frame3, columns=("tam","ing","cant","total"), show="headings")
@@ -69,20 +77,32 @@ class App(ctk.CTk):
 
         self.tabla.pack()
 
-        frame4 = ctk.CTkFrame(self)
+        # ---------------- FRAME 4 ----------------
+        frame4 = ctk.CTkFrame(frame_izq)
         frame4.pack(pady=5)
 
         ctk.CTkButton(frame4, text="Quitar", command=self.eliminar).pack(side="left", padx=5)
         ctk.CTkButton(frame4, text="Terminar", command=self.terminar).pack(side="left", padx=5)
 
-        self.label = ctk.CTkLabel(self, text="")
-        self.label.pack(pady=10)
+        # ---------------- FRAME DERECHO ----------------
+        frame5 = ctk.CTkFrame(contenedor, width=300)
+        frame5.pack(side="right", fill="y", padx=10, pady=10)
+
+        ctk.CTkLabel(frame5, text="Ventas del día").pack(pady=5)
+
+        self.texto_ventas = ctk.CTkTextbox(frame5, width=280, height=500)
+        self.texto_ventas.pack(pady=5)
 
         self.mostrar_ventas()
 
     def agregar(self):
         try:
             cant = int(self.cantidad.get())
+
+            if cant <= 0:
+                messagebox.showerror("Error", "La cantidad debe ser mayor a 0")
+                return
+
         except:
             messagebox.showerror("Error", "Cantidad incorrecta")
             return
@@ -110,6 +130,8 @@ class App(ctk.CTk):
 
         self.tabla.insert("", tk.END, values=(self.tamano.get(), ing, cant, total))
 
+        self.cantidad.delete(0, tk.END)
+
     def eliminar(self):
         for item in self.tabla.selection():
             self.tabla.delete(item)
@@ -130,7 +152,23 @@ class App(ctk.CTk):
 
         messagebox.showinfo("Total", "Total a pagar: $" + str(total))
 
+        # LIMPIAR TABLA
         self.tabla.delete(*self.tabla.get_children())
+
+        # LIMPIAR CAMPOS
+        self.nombre.delete(0, tk.END)
+        self.direccion.delete(0, tk.END)
+        self.telefono.delete(0, tk.END)
+        self.fecha.delete(0, tk.END)
+        self.cantidad.delete(0, tk.END)
+
+        # RESETEAR OPCIONES
+        self.tamano.set("Chica")
+        self.jamon.set(0)
+        self.pina.set(0)
+        self.champ.set(0)
+
+        # ACTUALIZAR VENTAS
         self.mostrar_ventas()
 
     def mostrar_ventas(self):
@@ -150,8 +188,10 @@ class App(ctk.CTk):
                         texto += nombre + " (" + fecha + ") $" + total + "\n"
                         suma += int(total)
 
-        texto += "\nTotal del dia: $" + str(suma)
-        self.label.configure(text=texto)
+        texto += "\nTotal del día: $" + str(suma)
+
+        self.texto_ventas.delete("1.0", tk.END)
+        self.texto_ventas.insert("1.0", texto)
 
 
 if __name__ == "__main__":
